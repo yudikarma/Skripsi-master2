@@ -276,7 +276,7 @@ public class Daftar extends AppCompatActivity implements AdapterView.OnItemSelec
             Toast.makeText(this, ""+edisplayname+""+eemail+""+epassword, Toast.LENGTH_LONG).show();
         } else {
         GetDataService api = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
-        Call<Base> call = api.postData(eemail, eemail, eno_hp, skategoripengguna, epassword);
+        Call<Base> call = api.postData(edisplayname, eemail, eno_hp, skategoripengguna, epassword);
         progressDoalog.show();
         call.enqueue(new Callback<Base>() {
             @Override
