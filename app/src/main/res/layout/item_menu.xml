@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".Menu">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="false"
+            android:duplicateParentState="true"
+            android:padding="10dp">
+
+            <TextView
+                android:id="@+id/txtJudul"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginBottom="25dp"
+                android:layout_marginRight="5dp"
+                android:clickable="false"
+                android:textStyle="bold"
+                android:textColor="#1f89e2"
+                android:text="Octanol"
+                android:textSize="17dp" />
+
+            <TextView
+                android:id="@+id/txtKB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/txtJudul"
+                android:text="("
+                android:textColor="#1f89e2"
+                android:layout_marginBottom="25dp"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/txtJlh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/txtKB"
+                android:text="2"
+                android:layout_marginBottom="25dp"
+                android:textColor="#1f89e2"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/txtKT"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/txtJlh"
+                android:text=")"
+                android:layout_marginBottom="25dp"
+                android:textColor="#1f89e2"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtJlhKet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/txtSisa"
+                android:text="Sisa Obat: "
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/txtSisa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:text="2"
+                android:textColor="#5b5b5b"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtCatatan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtJudul"
+                android:text="2 gotinhas" />
+
+            <TextView
+                android:id="@+id/txtAlarmKet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtCatatan"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_alignParentLeft="true"
+                android:text="Jam Minum :" />
+
+            <TextView
+                android:id="@+id/txtAlarm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtCatatan"
+                android:layout_toRightOf="@id/txtAlarmKet"
+                android:layout_marginTop="5dp"
+                android:text="12:12:12" />
+
+            <TextView
+                android:id="@+id/txtNotes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtCatatan"
+                android:layout_toLeftOf="@+id/txtWaktu"
+                android:layout_marginTop="5dp"
+                android:text="Waktu Berakhir : " />
+
+            <TextView
+                android:id="@+id/txtWaktu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtCatatan"
+                android:layout_marginTop="5dp"
+                android:layout_alignParentRight="true"
+                android:text="08-08-2018" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="#bfbfbf" />
+
+        </RelativeLayout>
+
+
+    </android.support.v7.widget.CardView>
+
+</FrameLayout>

@@ -1,0 +1,362 @@
+package com.example.gungde.reminder_medicine.FragmentsChats;
+
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.example.gungde.reminder_medicine.ActivityChats.ChatsRoom;
+import com.example.gungde.reminder_medicine.R;
+import com.example.gungde.reminder_medicine.model.Conv;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
+
+import de.hdodenhof.circleimageview.CircleImageView;
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class ChatsFragments extends Fragment {
+
+    private RecyclerView mConvList;
+
+    //inisialisasi firebase database
+    private DatabaseReference mConvDatabase;
+    private DatabaseReference mMessageDatabase;
+    private DatabaseReference mUsersDatabase;
+    private DatabaseReference mUserRef;
+
+    //Auth User
+    private FirebaseAuth mAuth;
+    private String mCurrent_user_id;
+
+    //Recycle Adapter
+    private FirebaseRecyclerAdapter<Conv,ConvViewHolder> adapter;
+    private String http = "Test";
+    private TextView notifnull;
+
+
+    public ChatsFragments() {
+        // Required empty public constructor
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View mMainView = inflater.inflate(R.layout.fragment_chats_fragments, container, false);
+
+        //Inisialisasi All layout
+        mConvList = (RecyclerView) mMainView.findViewById(R.id.conv_list);
+        mAuth = FirebaseAuth.getInstance();
+
+        notifnull = mMainView.findViewById(R.id.notifnullchats);
+
+        mCurrent_user_id = mAuth.getCurrentUser().getUid();
+
+        //Database Chats
+        mConvDatabase = FirebaseDatabase.getInstance().getReference().child("Chat").child(mCurrent_user_id);
+        mConvDatabase.keepSynced(true);
+
+        //Database Users
+        mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
+        mUsersDatabase.keepSynced(true);
+
+        //Database Message
+        mMessageDatabase = FirebaseDatabase.getInstance().getReference().child("messages").child(mCurrent_user_id);
+        mMessageDatabase.keepSynced(true);
+
+        //User Login Ref
+        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid()); //=> user yang login
+        mUserRef.keepSynced(true);
+
+        //Setting recycle view
+        mConvList.setHasFixedSize(true);
+        mConvList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        //Query for firebase ui
+        Query conversationQuery = mConvDatabase.orderByChild("timestamp").limitToLast(50);
+
+        //options (Firebas ui)
+        FirebaseRecyclerOptions<Conv> options =
+                new FirebaseRecyclerOptions.Builder<Conv>()
+                        .setQuery(conversationQuery, Conv.class)
+                        .setLifecycleOwner(this)
+                        .build();
+
+        //Adapter (Firebas UI)
+        adapter = new FirebaseRecyclerAdapter<Conv, ConvViewHolder>(options) {
+            @Override
+            protected void onBindViewHolder(@NonNull final ConvViewHolder holder, int position, @NonNull final Conv model) {
+
+                //Mendapatkan Uid dari list user
+                final String list_user_id = getRef(position).getKey();
+
+                //QUery untuk mendapatkan pesan terakhir
+                Query lastMessageQuery = mMessageDatabase.child(list_user_id).limitToLast(1);
+
+                lastMessageQuery.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        //mendapatkan isi pesan
+                        String data = dataSnapshot.child("message").getValue().toString();
+                        //mendapatkan pengirim pesan
+                        String fromUser = dataSnapshot.child("from").getValue().toString();
+
+                        /*// ================== METHOD JIKA ISi PESAN TERAKHIR ADALAH IMAGE*/
+
+                        if (!data.isEmpty() && data != null && data.length() >= 10){
+                            String http = data.substring(0, 4);
+                            if (http.equalsIgnoreCase("http")){
+
+                                if (fromUser.equalsIgnoreCase(mCurrent_user_id)){
+                                    holder.setMessage("Anda Mengirim Foto", model.isSeen());
+                                }else {
+                                    mUsersDatabase.child(fromUser).addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            String getdisplayname = dataSnapshot.child("name").getValue().toString();
+                                            holder.setMessage(" "+getdisplayname+" "+"Mengirim Foto", model.isSeen());
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
+
+                            }else {
+                                holder.setMessage(data, model.isSeen());
+                            }
+                        }else {
+                            holder.setMessage(data, model.isSeen());
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
+                //mendapatkan Informasi user
+                mUsersDatabase.child(list_user_id).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final String userName = dataSnapshot.child("name").getValue().toString();
+                        String userThumb = dataSnapshot.child("thumb_image").getValue().toString();
+
+                        if(dataSnapshot.hasChild("online")) {
+
+                            String userOnline = dataSnapshot.child("online").getValue().toString();
+                            holder.setUserOnline(userOnline);
+
+                        }
+
+                        holder.setName(userName);
+                        holder.setUserImage(userThumb, getContext());
+
+                        //set onclick User kemudian intent ke chatrooms
+                        holder.mView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent chatIntent = new Intent(getContext(), ChatsRoom.class);
+                                chatIntent.putExtra("user_id", list_user_id);
+                                chatIntent.putExtra("user_name", userName);
+                                startActivity(chatIntent);
+                            }
+                        });
+
+                        //SET On Long Click To Delete pesan
+                        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+                            @Override
+                            public boolean onLongClick(View view) {
+                                CharSequence options[] = new CharSequence[]{"Delete Message"};
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+
+                                builder.setTitle("Choose Options");
+
+                                builder.setItems(options, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        //click event for each item
+                                        if (i == 0){
+                                            mMessageDatabase.child(list_user_id).setValue(null);
+                                            mConvDatabase.child(mCurrent_user_id).child(list_user_id).setValue(null);
+                                        }
+
+                                    }
+                                });
+                                builder.show();
+                                return true;
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+
+            @NonNull
+            @Override
+            public ConvViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View mView = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_singgle_layout,parent,false);
+                return  new ConvViewHolder(mView);
+            }
+        };
+
+       /* //Jika lIst null then notif
+        //else
+        //recyclelist.setadapter(adapter)*/
+        FirebaseDatabase.getInstance().getReference().child("Chat").child(mCurrent_user_id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                long jumlah = dataSnapshot.getChildrenCount();
+                if (jumlah>0){
+                    mConvList.setAdapter(adapter);
+                }else {
+                    notifnull.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+
+        return  mMainView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        //important to firebase database ui
+        adapter.startListening();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        mUserRef.child("online").setValue("true");
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        //important to firebase database ui
+        adapter.stopListening();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mUserRef.child("online").setValue(ServerValue.TIMESTAMP);
+    }
+    public static class ConvViewHolder extends RecyclerView.ViewHolder {
+
+        View mView;
+
+        public ConvViewHolder(View itemView) {
+            super(itemView);
+
+            mView = itemView;
+
+        }
+
+        public void setMessage(String message, boolean isSeen){
+
+            TextView userStatusView = (TextView) mView.findViewById(R.id.user_single_status);
+            userStatusView.setText(message);
+
+            if(!isSeen){
+                userStatusView.setTypeface(userStatusView.getTypeface(), Typeface.BOLD);
+            } else {
+                userStatusView.setTypeface(userStatusView.getTypeface(), Typeface.NORMAL);
+            }
+
+        }
+
+        public void setName(String name){
+
+            TextView userNameView = (TextView) mView.findViewById(R.id.user_singgle_name);
+            userNameView.setText(name);
+
+        }
+
+        public void setUserImage(String thumb_image, Context ctx){
+
+            CircleImageView userImageView = (CircleImageView) mView.findViewById(R.id.profil_single_layout);
+            Picasso.with(ctx).load(thumb_image).placeholder(R.drawable.default_avatar).into(userImageView);
+
+        }
+
+        public void setUserOnline(String online_status) {
+
+            ImageView userOnlineView = (ImageView) mView.findViewById(R.id.user_single_online_icon);
+
+            if(online_status.equals("true")){
+
+                userOnlineView.setVisibility(View.VISIBLE);
+
+            } else {
+
+                userOnlineView.setVisibility(View.INVISIBLE);
+
+            }
+
+        }
+
+
+    }
+
+}

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   >
+
+    <include layout="@layout/app_bar_layout" android:id="@+id/user_appbar"></include>
+    <TextView
+        android:id="@+id/notifnulluser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:text="List Pasien Belum Tersedia"
+        />
+
+
+    <ProgressBar
+        android:id="@+id/load_allUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/search_field"
+        android:layout_marginStart="153dp"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/search_field"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/user_appbar"
+        android:layout_below="@+id/user_appbar"
+       android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
+
+
+        android:background="@drawable/search_layout"
+        android:hint="Search here"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:textColor="#999999"
+        android:textSize="16sp"
+        android:inputType="text"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+
+        />
+
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/user_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:layout_alignStart="@+id/search_field"
+        android:layout_below="@+id/search_field"
+       />
+
+</RelativeLayout>
